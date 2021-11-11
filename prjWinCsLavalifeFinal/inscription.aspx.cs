@@ -20,6 +20,9 @@ namespace prjWinCsLavalifeFinal
             if (!Page.IsPostBack)
             {
                 mySet = getDataSet();
+                tabUser = mySet.Tables["Users"];
+                tabSpecifications = mySet.Tables["Specifications"];
+                tabMessages = mySet.Tables["Messages"];
             }
         }
 
@@ -39,16 +42,16 @@ namespace prjWinCsLavalifeFinal
 
             //relations
             DataRelation myrel = new DataRelation("user_specification",
-                        myset.Tables["User"].Columns["Id"],
+                        myset.Tables["Users"].Columns["Id"],
                         myset.Tables["Specifications"].Columns["userId"]);
             
-            DataRelation myrel2 = new DataRelation("user_message_envoyeur",
-                        myset.Tables["User"].Columns["Id"],
+            DataRelation myrel2 = new DataRelation("user_messageenvoyeur",
+                        myset.Tables["Users"].Columns["Id"],
                         myset.Tables["Messages"].Columns["envoyeur"]);
 
-            DataRelation myrel3 = new DataRelation("user_message_receveur",
-                        myset.Tables["User"].Columns["Id"],
-                        myset.Tables["Specifications"].Columns["receveur"]);
+            DataRelation myrel3 = new DataRelation("user_messagereceveur",
+                        myset.Tables["Users"].Columns["Id"],
+                        myset.Tables["Messages"].Columns["receveur"]);
 
 
 
@@ -66,7 +69,13 @@ namespace prjWinCsLavalifeFinal
             myCon.Open();
             string sql = "INSERT INTO users(fname,lname,gender,birthday,email,password,status) VALUES" +
                 "(@fname,@lname,@gender,@birthday,@email,@password,'false');";
-            SqlCommand myCmd = new SqlCommand(sql, myCon);
+
+
+
+
+
+            //version sans dataset
+            /*SqlCommand myCmd = new SqlCommand(sql, myCon);
             myCmd.Parameters.AddWithValue("fname", UppercaseFirst(fname));
             myCmd.Parameters.AddWithValue("lname", UppercaseFirst(lname));
             myCmd.Parameters.AddWithValue("gender", gender);
@@ -74,6 +83,29 @@ namespace prjWinCsLavalifeFinal
             myCmd.Parameters.AddWithValue("email", email);
             myCmd.Parameters.AddWithValue("password", passwd);
             myCmd.ExecuteNonQuery();
+            */
+            //version avec dataset
+            DataRow myrow;
+            myrow = tabUser.NewRow();
+            myrow["fname"] = fname;
+            myrow["lname"] = lname;
+            myrow["gender"] = gender;
+            myrow["birthday"] = birth;
+            myrow["email"] = email;
+            myrow["password"] = passwd;
+            //ajout dans le dataset
+            tabUser.Rows.Add(myrow);
+
+            //synchro
+            SqlCommandBuilder myBuilder = new SqlCommandBuilder(adpUser);
+            adpUser.Update(mySet, "Users");
+            //refill dataset
+            tabUser = mySet.Tables["Users"];
+            mySet.Tables.Remove(tabUser);
+            adpUser.Fill(mySet, "Users");
+            tabUser = mySet.Tables["Users"];
+
+
             myCon.Close();
             //----------------------------------mettre l'id dans la session
             myCon.Open();
