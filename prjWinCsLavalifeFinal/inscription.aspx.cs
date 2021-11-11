@@ -11,12 +11,50 @@ namespace prjWinCsLavalifeFinal
 {
     public partial class inscription : System.Web.UI.Page
     {
+        static DataSet mySet;
+        static DataTable tabUser, tabSpecifications, tabMessages;
+        static SqlDataAdapter adpUser, adpSpecifications, adpMessages;
         static SqlConnection myCon = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=bdd_lavalife;Integrated Security=True");
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (!Page.IsPostBack)
+            {
+                mySet = getDataSet();
+            }
         }
 
+        protected DataSet getDataSet()
+        {
+            myCon.Open();
+            DataSet myset = new DataSet();
+
+            //remplir dataset avec les tables de la db
+            adpUser = new SqlDataAdapter("SELECT * FROM users", myCon);
+            adpSpecifications = new SqlDataAdapter("SELECT * FROM specifications", myCon);
+            adpMessages = new SqlDataAdapter("SELECT * FROM Messages", myCon);
+
+            adpUser.Fill(myset, "Users");
+            adpSpecifications.Fill(myset, "Specifications");
+            adpMessages.Fill(myset, "Messages");
+
+            //relations
+            DataRelation myrel = new DataRelation("user_specification",
+                        myset.Tables["User"].Columns["Id"],
+                        myset.Tables["Specifications"].Columns["userId"]);
+            
+            DataRelation myrel2 = new DataRelation("user_message_envoyeur",
+                        myset.Tables["User"].Columns["Id"],
+                        myset.Tables["Messages"].Columns["envoyeur"]);
+
+            DataRelation myrel3 = new DataRelation("user_message_receveur",
+                        myset.Tables["User"].Columns["Id"],
+                        myset.Tables["Specifications"].Columns["receveur"]);
+
+
+
+            myCon.Close();
+            return myset;
+        }
         protected void btnInscription_Click(object sender, EventArgs e)
         {
             string fname = txtFirstName.Text;
