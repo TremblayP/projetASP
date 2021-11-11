@@ -93,6 +93,7 @@ namespace prjWinCsLavalifeFinal
             myrow["birthday"] = birth;
             myrow["email"] = email;
             myrow["password"] = passwd;
+            myrow["status"] = "false";
             //ajout dans le dataset
             tabUser.Rows.Add(myrow);
 
