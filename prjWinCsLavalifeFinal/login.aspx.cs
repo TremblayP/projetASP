@@ -14,7 +14,7 @@ using System.Web.UI.Control.PreRenderRecursiveInternal() + 163;
 using System.Web.UI.Control.PreRenderRecursiveInternal() + 163;
 using System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint) + 906;
 */
-//test comment pour git
+//test comment pour git wjabobwi
 namespace prjWinCsLavalifeFinal
 {
 
