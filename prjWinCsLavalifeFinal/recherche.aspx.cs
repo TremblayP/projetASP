@@ -14,10 +14,6 @@ namespace prjWinCsLavalifeFinal
         {
             if (Session["searchAgain"] == "true")
             {
-                if (Page.IsPostBack)
-                {
-                    
-                }
                 cboGenderR.SelectedValue = Session["gender"].ToString();
                 txtNationalityR.Text = Session["nationality"].ToString();
                 txtHairR.Text = Session["hair"].ToString();
@@ -26,9 +22,9 @@ namespace prjWinCsLavalifeFinal
                 txtMinHeight.Text = min;
                 txtMaxHeight.Text = max;
                 txtEyesR.Text = Session["eyes"].ToString();
-
             }
         }
+
 
         protected void btnRecherche_Click(object sender, EventArgs e)
         {
