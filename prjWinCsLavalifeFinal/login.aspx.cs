@@ -130,9 +130,11 @@ namespace prjWinCsLavalifeFinal
                          where dr.Field<string>("email").ToString() == email
                          && dr.Field<string>("password") == password
                          select dr;
-            DataRow tmp = leUser.ElementAt<DataRow>(0);
-            if (!AreAllColumnsEmpty(tmp))
+            bool tst = leUser.Any();
+
+            if (tst)
             {
+                DataRow tmp = leUser.ElementAt<DataRow>(0);
                 if (tmp["status"].ToString() == "false")
                 {
                     Session["userId"] = tmp["Id"];
@@ -151,7 +153,6 @@ namespace prjWinCsLavalifeFinal
                 lblResultat.Text = "Email or password incorrect";
                 myCon.Close();
             }
-
 
         }
     }
