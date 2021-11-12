@@ -20,7 +20,8 @@ namespace prjWinCsLavalifeFinal
         {
             if (!Page.IsPostBack)
             {
-                string sql = "SELECT * FROM users WHERE Id = @userid";
+                //version sans dataset
+                /*string sql = "SELECT * FROM users WHERE Id = @userid";
                 myCon.Open();
                 SqlCommand myCmd = new SqlCommand(sql, myCon);
                 myCmd.Parameters.AddWithValue("userid", Session["userId"]);
@@ -32,9 +33,53 @@ namespace prjWinCsLavalifeFinal
                     litWelcome.Text = "Welcome " + myRd["fname"] + "<br></h2><hr><h5 style=margin-left:5px>Please enter specifications to confirm your account</h5><h2>";
                 }
                 myCon.Close();
-                myRd.Close();
-                
+                myRd.Close();*/
+                mySet = getDataSet();
+                tabUser = mySet.Tables["Users"];
+                tabSpecifications = mySet.Tables["Specifications"];
+                tabMessages = mySet.Tables["Messages"];
+                if (verifyCurrentUser(Session["userId"].ToString()))
+                {
+                    DataRow cur = selectUser(Session["userId"].ToString());
+                    litWelcome.Text = "Welcome " + cur["fname"].ToString() + "<br></h2><hr><h5 style=margin-left:5px>Please enter specifications to confirm your account</h5><h2>";
+                }
+
+
+
+
+
+
+
             }
+        }
+        protected bool verifyCurrentUser(string s)
+        {
+            myCon.Open();
+            var currentUser = from DataRow dr in tabUser.Rows
+                              where dr.Field<int>("Id").ToString() == s
+                              select dr;
+            if (currentUser.Any())
+            {
+                return true;
+            }
+            else
+            {
+                myCon.Close();
+                return false;
+            }
+  
+
+        }
+
+        protected DataRow selectUser(string s)
+        {
+            var currentUser = from DataRow dr in tabUser.Rows
+                              where dr.Field<int>("Id").ToString() == s
+                              select dr;
+            DataRow tmp = currentUser.ElementAt<DataRow>(0);
+            myCon.Close();
+            return tmp;
+
         }
 
         protected DataSet getDataSet()
@@ -79,6 +124,7 @@ namespace prjWinCsLavalifeFinal
             if(natio != "" && hai != "" && heig != "" && eye != "")
             {
                 myCon.Open();
+                /*version sans dataset
                 string sql = "UPDATE users SET status = 'true' WHERE Id = @id";
                 SqlCommand myCmd = new SqlCommand(sql, myCon);
                 myCmd.Parameters.AddWithValue("id", Session["userId"]);
@@ -97,12 +143,53 @@ namespace prjWinCsLavalifeFinal
                 myCmd2.Parameters.AddWithValue("height", heig.ToString());
                 myCmd2.Parameters.AddWithValue("eyes", eye);
                 myCmd2.ExecuteNonQuery();
+                */
+                //version avec dataset
+                //update users
+                DataRow myrow;
+                foreach(DataRow dr in tabUser.Rows)
+                {
+                    if (dr["Id"].ToString() == Session["userId"].ToString())
+                    {
+                        myrow = dr;
+                        dr["status"] = "true";
+                        
+                    }
+                }
+                //synchro
+                SqlCommandBuilder myBuilder = new SqlCommandBuilder(adpUser);
+                adpUser.Update(mySet, "Users");
+                //refill dataset
+                tabUser = mySet.Tables["Users"];
+                mySet.Tables.Remove(tabUser);
+                adpUser.Fill(mySet, "Users");
+                tabUser = mySet.Tables["Users"];
 
+                //add specs
+                myrow = tabSpecifications.NewRow();
+                myrow["userId"] = Convert.ToInt32(Session["userId"]);
+                myrow["nationality"] = natio;
+                myrow["want"] = wan;
+                myrow["hair"] = hai;
+                myrow["height"] = heig;
+                myrow["eyes"] = eye;
+
+                //ajout dans le dataset
+                tabSpecifications.Rows.Add(myrow);
+
+                //synchro
+                SqlCommandBuilder myBuilder2 = new SqlCommandBuilder(adpSpecifications);
+                adpSpecifications.Update(mySet, "Specifications");
+                //refill dataset
+                tabSpecifications = mySet.Tables["Specifications"];
+                mySet.Tables.Remove(tabUser);
+                adpSpecifications.Fill(mySet, "Specification");
+                tabSpecifications = mySet.Tables["Specifications"];
 
 
                 myCon.Close();
 
-                Response.Redirect("recherche.aspx");
+                Response.Redirect("accueilMembre.aspx");
             }
 
 

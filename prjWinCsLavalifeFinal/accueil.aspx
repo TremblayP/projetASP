@@ -160,7 +160,7 @@
                                                 <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" ErrorMessage="*" ForeColor="#FF3300" ControlToValidate="txtEyes"></asp:RequiredFieldValidator>
 											</td>
 										</tr>
-										<tr><td></td></tr>
+										<tr><td>&nbsp;</td></tr>
 										<tr>
 											<td>
                                                 <asp:Button ID="btnConfirmer" runat="server" Text="CONFIRM" BackColor="#FF3300" ForeColor="White" Width="300px" OnClick="btnConfirmer_Click" />
