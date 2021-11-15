@@ -33,7 +33,7 @@ namespace prjWinCsLavalifeFinal
                 myCon.Open();
                 var lesmessages = from DataRow drM in tabMessagesdt.Rows
                                join DataRow drU in tabUser.Rows
-                               on drM.Field<int>("receveur")
+                               on drM.Field<int>("envoyeur")
                                equals drU.Field<int>("Id")
                                where drM.Field<int>("receveur") == refU
                                let m = new
@@ -76,18 +76,20 @@ namespace prjWinCsLavalifeFinal
                         maCell = new TableCell();
                         maCell.Text = dr.titre.ToString();
                         maLigne.Cells.Add(maCell);
-
+                    lbltest.Text = dr.envoyeur.ToString();
                     maCell = new TableCell();
                     var envoyeur = from DataRow drenv in tabUser.Rows
                                    where drenv.Field<int>("Id") == dr.envoyeur
-                                   select drenv;
+                                   select new { 
+                                   fname = drenv.Field<string>("fname"),
+                                   lname = drenv.Field<string>("lname")                                   };
                     string fnameE = "";
                     string lnameE = "";
-                    DataRow resultEnv = envoyeur.ElementAt<DataRow>(0);
-                    foreach(DataRow elem in envoyeur)
+
+                    foreach(var elem in envoyeur)
                     {
-                        fnameE = elem["fname"].ToString();
-                        lnameE = elem["lname"].ToString();
+                        fnameE = elem.fname.ToString();
+                        lnameE = elem.lname.ToString();
                     }
                     maCell.Text = fnameE + " " + lnameE ;
                         maLigne.Cells.Add(maCell);

@@ -25,6 +25,7 @@
             <asp:Table ID="tabMessages" runat="server" Height="16px" HorizontalAlign="Center" Width="710px"></asp:Table>
 
         </div>
+        <asp:Label ID="lbltest" runat="server" Text="Label"></asp:Label>
     </form>
 </body>
 </html>
