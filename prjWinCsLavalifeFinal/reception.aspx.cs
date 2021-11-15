@@ -12,13 +12,44 @@ namespace prjWinCsLavalifeFinal
 {
     public partial class reception : System.Web.UI.Page
     {
+        static DataSet mySet;
+        static DataTable tabUser, tabSpecifications, tabMessagesdt;
+        static SqlDataAdapter adpUser, adpSpecifications, adpMessages;
         static SqlConnection myCon = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=bdd_lavalife;Integrated Security=True");
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            Int32 refM = Convert.ToInt32(Session["userId"]);
+            Int32 refU = Convert.ToInt32(Session["userId"]);
+            //version avec dataset
 
             myCon.Open();
+            if (!Page.IsPostBack)
+            {
+                mySet = getDataSet();
+                tabUser = mySet.Tables["Users"];
+                tabSpecifications = mySet.Tables["Specifications"];
+                tabMessagesdt = mySet.Tables["Messages"];
+                var messages = from DataRow drM in tabMessages.Rows
+                               join DataRow drU in tabUser.Rows
+                               on drM.Field<int>("envoyeur")
+                               equals drU.Field<int>("Id")
+                               where drM.Field<int>("receveur") == refU
+                               let m = new
+                               {
+                                   refM = drM.Field<int>("refM"),
+                                   titre = drM.Field<string>("titre"),
+                                   envoyeur = drM.Field<int>("envoyeur"),
+                                   receveur = drM.Field<int>("receveur"),
+                                   nouveau = drM.Field<string>("nouveau"),
+                                   fname = drU.Field<string>("fname"),
+                                   lname = drU.Field<string>("lname")
+                               }
+                               select m;
+
+
+            }
+            /*
+            //version sans dataset
             string sqlMsg = "SELECT Messages.refM , Messages.titre , Messages.envoyeur , Messages.nouveau , users.fname , users.lname FROM users" +
                 " JOIN Messages ON users.Id = Messages.envoyeur   WHERE Messages.receveur = " + refM;
             SqlCommand mycmdMsg = new SqlCommand(sqlMsg, myCon);
@@ -71,7 +102,44 @@ namespace prjWinCsLavalifeFinal
             }
 
             rdMsg.Close();
+
+            */
+
+
             myCon.Close();
+        }
+
+        protected DataSet getDataSet()
+        {
+            myCon.Open();
+            DataSet myset = new DataSet();
+
+            //remplir dataset avec les tables de la db
+            adpUser = new SqlDataAdapter("SELECT * FROM users", myCon);
+            adpSpecifications = new SqlDataAdapter("SELECT * FROM specifications", myCon);
+            adpMessages = new SqlDataAdapter("SELECT * FROM Messages", myCon);
+
+            adpUser.Fill(myset, "Users");
+            adpSpecifications.Fill(myset, "Specifications");
+            adpMessages.Fill(myset, "Messages");
+
+            //relations
+            DataRelation myrel = new DataRelation("user_specification",
+                        myset.Tables["Users"].Columns["Id"],
+                        myset.Tables["Specifications"].Columns["userId"]);
+
+            DataRelation myrel2 = new DataRelation("user_messageenvoyeur",
+                        myset.Tables["Users"].Columns["Id"],
+                        myset.Tables["Messages"].Columns["envoyeur"]);
+
+            DataRelation myrel3 = new DataRelation("user_messagereceveur",
+                        myset.Tables["Users"].Columns["Id"],
+                        myset.Tables["Messages"].Columns["receveur"]);
+
+
+
+            myCon.Close();
+            return myset;
         }
     }
 }
