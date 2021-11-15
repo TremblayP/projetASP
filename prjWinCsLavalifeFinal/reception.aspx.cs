@@ -22,16 +22,18 @@ namespace prjWinCsLavalifeFinal
             Int32 refU = Convert.ToInt32(Session["userId"]);
             //version avec dataset
 
-            myCon.Open();
+            
             if (!Page.IsPostBack)
             {
+
                 mySet = getDataSet();
                 tabUser = mySet.Tables["Users"];
                 tabSpecifications = mySet.Tables["Specifications"];
                 tabMessagesdt = mySet.Tables["Messages"];
-                var messages = from DataRow drM in tabMessages.Rows
+                myCon.Open();
+                var lesmessages = from DataRow drM in tabMessagesdt.Rows
                                join DataRow drU in tabUser.Rows
-                               on drM.Field<int>("envoyeur")
+                               on drM.Field<int>("receveur")
                                equals drU.Field<int>("Id")
                                where drM.Field<int>("receveur") == refU
                                let m = new
@@ -45,36 +47,53 @@ namespace prjWinCsLavalifeFinal
                                    lname = drU.Field<string>("lname")
                                }
                                select m;
+                //Création de la ligne des titres des colonnes du tableau
+                TableRow maLigne = new TableRow();
+                maLigne.BackColor = Color.LightSlateGray;
 
+                TableCell maCell = new TableCell();
+                maCell.Text = "Titre :";
+                maLigne.Cells.Add(maCell);
 
+                maCell = new TableCell();
+                maCell.Text = "De provenance :";
+                maLigne.Cells.Add(maCell);
+
+                maCell = new TableCell();
+                maCell.Text = "Action :";
+                maLigne.Cells.Add(maCell);
+
+                tabMessages.Rows.Add(maLigne);
+                
+
+                    foreach(var dr in lesmessages)
+                    {
+                    maLigne = new TableRow();
+                        if(dr.nouveau == "true")
+                        {
+                            maLigne.BackColor = Color.LightYellow;
+                        }
+                        maCell = new TableCell();
+                        maCell.Text = dr.titre.ToString();
+                        maLigne.Cells.Add(maCell);
+
+                        maCell = new TableCell();
+                        maCell.Text = dr.fname.ToString() + " " + dr.lname; ;
+                        maLigne.Cells.Add(maCell);
+
+                        maCell = new TableCell();
+
+                        int refmsg = Convert.ToInt32(dr.refM);
+                        String nom = dr.fname.ToString() + " " + dr.lname.ToString();
+                        maCell.Text = "<a href='lireMessage.aspx?refm=" + refmsg + "&nom=" + nom + "'>Lire</a> - <a href='effacerMessage.aspx?refm=" + refmsg + "'>Effacer</a>";
+                        maLigne.Cells.Add(maCell);
+
+                        tabMessages.Rows.Add(maLigne);
+                    }
+                
             }
             /*
-            //version sans dataset
-            string sqlMsg = "SELECT Messages.refM , Messages.titre , Messages.envoyeur , Messages.nouveau , users.fname , users.lname FROM users" +
-                " JOIN Messages ON users.Id = Messages.envoyeur   WHERE Messages.receveur = " + refM;
-            SqlCommand mycmdMsg = new SqlCommand(sqlMsg, myCon);
-            SqlDataReader rdMsg = mycmdMsg.ExecuteReader();
-
-            //Création de la ligne des titres des colonnes du tableau
-            TableRow maLigne = new TableRow();
-            maLigne.BackColor = Color.LightSlateGray;
-
-            TableCell maCell = new TableCell();
-            maCell.Text = "Titre :";
-            maLigne.Cells.Add(maCell);
-
-            maCell = new TableCell();
-            maCell.Text = "De provenance :";
-            maLigne.Cells.Add(maCell);
-
-            maCell = new TableCell();
-            maCell.Text = "Action :";
-            maLigne.Cells.Add(maCell);
-
-            tabMessages.Rows.Add(maLigne);
-
-            // Creation des lignes selon le nombre d'éléments du datareader
-            while (rdMsg.Read())
+             *             while (rdMsg.Read())
             {
 
                 maLigne = new TableRow();
@@ -100,6 +119,32 @@ namespace prjWinCsLavalifeFinal
 
                 tabMessages.Rows.Add(maLigne);
             }
+            //version sans dataset
+            string sqlMsg = "SELECT Messages.refM , Messages.titre , Messages.envoyeur , Messages.nouveau , users.fname , users.lname FROM users" +
+                " JOIN Messages ON users.Id = Messages.envoyeur   WHERE Messages.receveur = " + refM;
+            SqlCommand mycmdMsg = new SqlCommand(sqlMsg, myCon);
+            SqlDataReader rdMsg = mycmdMsg.ExecuteReader();
+
+            //Création de la ligne des titres des colonnes du tableau
+            TableRow maLigne = new TableRow();
+            maLigne.BackColor = Color.LightSlateGray;
+
+            TableCell maCell = new TableCell();
+            maCell.Text = "Titre :";
+            maLigne.Cells.Add(maCell);
+
+            maCell = new TableCell();
+            maCell.Text = "De provenance :";
+            maLigne.Cells.Add(maCell);
+
+            maCell = new TableCell();
+            maCell.Text = "Action :";
+            maLigne.Cells.Add(maCell);
+
+            tabMessages.Rows.Add(maLigne);
+
+            // Creation des lignes selon le nombre d'éléments du datareader
+
 
             rdMsg.Close();
 
