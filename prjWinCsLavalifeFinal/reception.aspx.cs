@@ -77,14 +77,25 @@ namespace prjWinCsLavalifeFinal
                         maCell.Text = dr.titre.ToString();
                         maLigne.Cells.Add(maCell);
 
-                        maCell = new TableCell();
-                        maCell.Text = dr.fname.ToString() + " " + dr.lname; ;
+                    maCell = new TableCell();
+                    var envoyeur = from DataRow drenv in tabUser.Rows
+                                   where drenv.Field<int>("Id") == dr.envoyeur
+                                   select drenv;
+                    string fnameE = "";
+                    string lnameE = "";
+                    DataRow resultEnv = envoyeur.ElementAt<DataRow>(0);
+                    foreach(DataRow elem in envoyeur)
+                    {
+                        fnameE = elem["fname"].ToString();
+                        lnameE = elem["lname"].ToString();
+                    }
+                    maCell.Text = fnameE + " " + lnameE ;
                         maLigne.Cells.Add(maCell);
 
                         maCell = new TableCell();
 
                         int refmsg = Convert.ToInt32(dr.refM);
-                        String nom = dr.fname.ToString() + " " + dr.lname.ToString();
+                        String nom = fnameE + " " + lnameE;
                         maCell.Text = "<a href='lireMessage.aspx?refm=" + refmsg + "&nom=" + nom + "'>Lire</a> - <a href='effacerMessage.aspx?refm=" + refmsg + "'>Effacer</a>";
                         maLigne.Cells.Add(maCell);
 
