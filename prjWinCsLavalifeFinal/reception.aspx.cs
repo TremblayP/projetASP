@@ -76,7 +76,7 @@ namespace prjWinCsLavalifeFinal
                         maCell = new TableCell();
                         maCell.Text = dr.titre.ToString();
                         maLigne.Cells.Add(maCell);
-                    lbltest.Text = dr.envoyeur.ToString();
+
                     maCell = new TableCell();
                     var envoyeur = from DataRow drenv in tabUser.Rows
                                    where drenv.Field<int>("Id") == dr.envoyeur
